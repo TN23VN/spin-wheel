@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="@dimen/_12sdp"
+        android:paddingHorizontal="@dimen/_6sdp">
+
+        <com.example.basekotlin.util.AlwaysMarqueeTextView
+            android:id="@+id/tv_tool_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/_8sdp"
+            android:layout_toStartOf="@+id/iv_right"
+            android:ellipsize="end"
+            android:fontFamily="@font/archivo_bold"
+            android:gravity="start"
+            android:includeFontPadding="false"
+            android:singleLine="true"
+            android:text="@string/choose_language"
+            android:textColor="@color/color_main_text"
+            android:textSize="20sp" />
+
+        <com.example.basekotlin.util.AlwaysMarqueeTextView
+            android:id="@+id/tv_tool_bar_dec"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_tool_bar"
+            android:layout_marginHorizontal="@dimen/_8sdp"
+            android:layout_marginTop="4dp"
+            android:layout_toStartOf="@+id/iv_right"
+            android:ellipsize="end"
+            android:fontFamily="@font/inter"
+            android:gravity="start"
+            android:includeFontPadding="false"
+            android:singleLine="true"
+            android:text="@string/please_select_a_language"
+            android:textColor="@color/color_text_second"
+            android:textSize="12sp" />
+
+        <ImageView
+            android:id="@+id/iv_right"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:padding="@dimen/_8sdp"
+            android:src="@drawable/ic_check" />
+    </RelativeLayout>
+
+</RelativeLayout>

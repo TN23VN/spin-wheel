@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="color_3A5EA3">#3A5EA3</color>
+
+    <color name="color_main_text">#0F0705</color>
+    <color name="color_main_title">#CC0F0705</color>
+    <color name="color_text_second">#990F0705</color>
+    <color name="color_main_process">#A30000</color>
+    <color name="color_red_crimson_50">#C4251B</color>
+    <color name="color_red_crimson_60">#E54332</color>
+    <color name="color_main_bg">#FEEEEC</color>
+
+</resources>
