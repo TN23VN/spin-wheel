@@ -1,7 +1,5 @@
 package com.example.spinwheel.ui.spinwheel
 
-import android.app.AlertDialog
-import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
@@ -17,9 +15,12 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.example.spinwheel.R
 import com.example.spinwheel.base.BaseActivity
+import com.example.spinwheel.base.inVisible
 import com.example.spinwheel.base.tap
 import com.example.spinwheel.data.WheelRepository
 import com.example.spinwheel.databinding.ActivityWheelEditorBinding
+import com.example.spinwheel.dialog.common.ConfirmDialog
+import com.example.spinwheel.dialog.common.SingleChoiceDialog
 import com.example.spinwheel.model.WheelModel
 import com.example.spinwheel.model.WheelSlice
 
@@ -41,11 +42,12 @@ class WheelEditorActivity :
     }
 
     override fun initView() {
-        binding.tvTitle.text = if (intent.hasExtra(EXTRA_WHEEL_ID)) {
+        binding.viewTop.tvToolBar.text = if (intent.hasExtra(EXTRA_WHEEL_ID)) {
             getString(R.string.edit_wheel)
         } else {
             getString(R.string.new_wheel)
         }
+        binding.viewTop.ivRight.inVisible()
         binding.edtName.setText(wheel.name)
         binding.seekFontSize.progress = (wheel.fontSize - 10).coerceIn(0, 14)
         binding.seekRepeat.progress = (wheel.repeat - 1).coerceIn(0, 4)
@@ -55,7 +57,7 @@ class WheelEditorActivity :
     }
 
     override fun bindView() {
-        binding.btnBack.tap { handleBack() }
+        binding.viewTop.ivLeft.tap { handleBack() }
         binding.btnSave.tap { save() }
         binding.btnPreview.tap { updatePreview() }
         binding.btnAddOption.tap { addOption() }
@@ -109,11 +111,12 @@ class WheelEditorActivity :
             return
         }
 
-        AlertDialog.Builder(this)
-            .setTitle(R.string.discard_changes)
-            .setNegativeButton(R.string.cancel, null)
-            .setPositiveButton(R.string.discard) { _, _ -> onBack() }
-            .show()
+        ConfirmDialog(
+            context = this,
+            title = getString(R.string.discard_changes),
+            confirmText = getString(R.string.discard),
+            onConfirm = { onBack() },
+        ).show()
     }
 
     override fun onBack() {
@@ -121,38 +124,39 @@ class WheelEditorActivity :
     }
 
     private fun showThemePicker() {
-        var selected = wheel.themeIndex
-        AlertDialog.Builder(this)
-            .setTitle(R.string.choose_wheel_color)
-            .setSingleChoiceItems(WheelRepository.themes.toTypedArray(), selected) { _, which ->
-                selected = which
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .setPositiveButton(R.string.ok) { _, _ ->
+        SingleChoiceDialog(
+            context = this,
+            title = getString(R.string.choose_wheel_color),
+            options = WheelRepository.themes,
+            selectedIndex = wheel.themeIndex,
+            confirmText = getString(R.string.ok),
+            onConfirm = { selected ->
                 wheel = WheelRepository.applyTheme(wheel, selected)
                 markChanged()
                 updateThemeLabel()
                 renderSlices()
                 updatePreview()
-            }
-            .show()
+            },
+        ).show()
     }
 
     private fun showColorPicker(index: Int) {
         val colors = WheelRepository.defaultColors
-        val labels = colors.map { "#%06X".format(0xFFFFFF and it) }.toTypedArray()
-        var selected = colors.indexOf(wheel.slices[index].color).takeIf { it >= 0 } ?: 0
-        AlertDialog.Builder(this)
-            .setTitle(R.string.edit)
-            .setSingleChoiceItems(labels, selected) { _, which -> selected = which }
-            .setNegativeButton(R.string.cancel, null)
-            .setPositiveButton(R.string.ok) { _, _ ->
-                wheel.slices[index].color = colors[selected]
+        val labels = colors.map { "#%06X".format(0xFFFFFF and it) }
+        val selected = colors.indexOf(wheel.slices[index].color).takeIf { it >= 0 } ?: 0
+        SingleChoiceDialog(
+            context = this,
+            title = getString(R.string.edit),
+            options = labels,
+            selectedIndex = selected,
+            confirmText = getString(R.string.ok),
+            onConfirm = { selectedColor ->
+                wheel.slices[index].color = colors[selectedColor]
                 markChanged()
                 renderSlices()
                 updatePreview()
-            }
-            .show()
+            },
+        ).show()
     }
 
     private fun renderSlices() {

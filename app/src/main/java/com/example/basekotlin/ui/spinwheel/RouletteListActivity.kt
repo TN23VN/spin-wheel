@@ -1,15 +1,17 @@
 package com.example.spinwheel.ui.spinwheel
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.spinwheel.R
 import com.example.spinwheel.base.BaseActivity
+import com.example.spinwheel.base.inVisible
 import com.example.spinwheel.base.tap
 import com.example.spinwheel.data.WheelRepository
 import com.example.spinwheel.databinding.ActivityRouletteListBinding
+import com.example.spinwheel.dialog.common.ConfirmDialog
+import com.example.spinwheel.dialog.common.SingleChoiceDialog
 import com.example.spinwheel.model.WheelModel
 
 class RouletteListActivity :
@@ -23,12 +25,14 @@ class RouletteListActivity :
     )
 
     override fun initView() {
+        binding.viewTop.tvToolBar.text = getString(R.string.roulette_list)
+        binding.viewTop.ivRight.inVisible()
         binding.rvWheels.layoutManager = LinearLayoutManager(this)
         binding.rvWheels.adapter = adapter
     }
 
     override fun bindView() {
-        binding.btnBack.tap { onBack() }
+        binding.viewTop.ivLeft.tap { onBack() }
         binding.btnAdd.tap { showThemePicker() }
     }
 
@@ -56,19 +60,18 @@ class RouletteListActivity :
     }
 
     private fun showThemePicker() {
-        var selected = 0
-        AlertDialog.Builder(this)
-            .setTitle(R.string.choose_wheel_color)
-            .setSingleChoiceItems(WheelRepository.themes.toTypedArray(), selected) { _, which ->
-                selected = which
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .setPositiveButton(R.string.next) { _, _ ->
+        SingleChoiceDialog(
+            context = this,
+            title = getString(R.string.choose_wheel_color),
+            options = WheelRepository.themes,
+            selectedIndex = 0,
+            confirmText = getString(R.string.next),
+            onConfirm = { selected ->
                 startNextActivity(WheelEditorActivity::class.java, Bundle().apply {
                     putInt(WheelEditorActivity.EXTRA_THEME_INDEX, selected)
                 })
-            }
-            .show()
+            },
+        ).show()
     }
 
     private fun duplicate(wheel: WheelModel) {
@@ -87,14 +90,15 @@ class RouletteListActivity :
     }
 
     private fun confirmDelete(wheel: WheelModel) {
-        AlertDialog.Builder(this)
-            .setTitle(R.string.delete_wheel_title)
-            .setMessage(R.string.delete_wheel_message)
-            .setNegativeButton(R.string.cancel, null)
-            .setPositiveButton(R.string.delete) { _, _ ->
+        ConfirmDialog(
+            context = this,
+            title = getString(R.string.delete_wheel_title),
+            message = getString(R.string.delete_wheel_message),
+            confirmText = getString(R.string.delete),
+            onConfirm = {
                 WheelRepository.deleteWheel(this, wheel.id)
                 reload()
-            }
-            .show()
+            },
+        ).show()
     }
 }

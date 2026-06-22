@@ -1,5 +1,18 @@
-<?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/color_card_soft" />
-    <corners android:radius="16dp" />
-</shape>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <!-- Background -->
+    <path
+        android:fillColor="#FFFBFB"
+        android:pathData="M0,16C0,7.163 7.163,0 16,0H32C40.837,0 48,7.163 48,16V32C48,40.837 40.837,48 32,48H16C7.163,48 0,40.837 0,32V16Z" />
+
+    <!-- Border -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#C4251B"
+        android:strokeWidth="1"
+        android:pathData="M0.5,16C0.5,7.439 7.439,0.5 16,0.5H32C40.561,0.5 47.5,7.439 47.5,16V32C47.5,40.561 40.561,47.5 32,47.5H16C7.439,47.5 0.5,40.561 0.5,32V16Z" />
+</vector>

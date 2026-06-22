@@ -13,44 +13,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageButton
-        android:id="@+id/btn_back"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="46dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/cancel"
-        android:padding="12dp"
-        android:src="@drawable/ic_back"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/tv_title"
+    <include
+        android:id="@+id/view_top"
+        layout="@layout/tool_bar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/archivo_bold"
-        android:gravity="center"
-        android:text="@string/spin_the_wheel"
-        android:textColor="@color/color_main_text"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="@id/btn_back"
-        app:layout_constraintEnd_toStartOf="@id/btn_sound"
-        app:layout_constraintStart_toEndOf="@id/btn_back"
-        app:layout_constraintTop_toTopOf="@id/btn_back" />
-
-    <ImageButton
-        android:id="@+id/btn_sound"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="46dp"
-        android:layout_marginEnd="16dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/settings"
-        android:padding="12dp"
-        android:src="@drawable/ic_volume_up_black"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -60,7 +29,8 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="36dp"
         android:layout_marginEnd="16dp"
-        android:background="@drawable/bg_soft_panel_16"
+        android:background="@drawable/bg_radius_16"
+        android:backgroundTint="@color/color_card_soft"
         android:fontFamily="@font/inter_medium"
         android:lineSpacingExtra="2dp"
         android:padding="16dp"
@@ -69,14 +39,14 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_title" />
+        app:layout_constraintTop_toBottomOf="@id/view_top" />
 
     <com.example.spinwheel.widget.SpinWheelView
         android:id="@+id/spin_wheel"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="20dp"
-        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintDimensionRatio="381:412"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_question"

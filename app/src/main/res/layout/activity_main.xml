@@ -6,32 +6,21 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <TextView
-        android:id="@+id/tv_title"
+    <com.example.spinwheel.widget.SoftBackgroundView
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="54dp"
-        android:layout_marginEnd="16dp"
-        android:fontFamily="@font/archivo_bold"
-        android:text="@string/app_name_2"
-        android:textColor="@color/color_main_text"
-        android:textSize="28sp"
-        app:layout_constraintEnd_toStartOf="@id/btn_settings"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageButton
-        android:id="@+id/btn_settings"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="48dp"
-        android:layout_marginEnd="18dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/settings"
-        android:padding="10dp"
-        android:src="@drawable/ic_settings_red"
+    <include
+        android:id="@+id/view_top"
+        layout="@layout/tool_bar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -39,7 +28,7 @@
         android:layout_width="0dp"
         android:layout_height="181dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="36dp"
         android:layout_marginEnd="16dp"
         android:background="@drawable/bg_home_spin_card"
         android:clickable="true"
@@ -48,7 +37,7 @@
         android:padding="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_title">
+        app:layout_constraintTop_toBottomOf="@id/view_top">
 
         <ImageView
             android:id="@+id/view_wheel_preview"
@@ -196,9 +185,5 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/view_choose_number" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <com.example.spinwheel.widget.SoftBackgroundView
-            android:layout_width="0dp"
-            android:layout_height="0dp" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/root"
     android:layout_width="match_parent"
-    android:layout_height="136dp"
+    android:layout_height="182dp"
     android:layout_marginBottom="12dp"
     android:background="@drawable/bg_home_spin_card"
     android:clickable="true"
@@ -15,12 +15,15 @@
         android:id="@+id/tv_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="8dp"
         android:ellipsize="end"
         android:fontFamily="@font/inter_semibold"
-        android:maxLines="2"
+        android:maxLines="3"
         android:text="@string/wheel_question"
         android:textColor="@color/color_main_text"
-        android:textSize="15sp"
+        android:textSize="22sp"
         app:layout_constraintEnd_toStartOf="@id/preview"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -28,28 +31,46 @@
     <LinearLayout
         android:id="@+id/action_row"
         android:layout_width="0dp"
-        android:layout_height="38dp"
-        android:layout_marginTop="12dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="12dp"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/preview"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_name">
+        app:layout_constraintStart_toStartOf="parent">
 
-        <TextView
+        <LinearLayout
             android:id="@+id/btn_edit"
-            android:layout_width="76dp"
-            android:layout_height="match_parent"
+            android:layout_width="94dp"
+            android:layout_height="wrap_content"
             android:background="@drawable/bg_primary_red_16"
-            android:fontFamily="@font/inter_semibold"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
             android:gravity="center"
-            android:text="@string/edit"
-            android:textColor="@color/white"
-            android:textSize="13sp" />
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_edit_white" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:fontFamily="@font/inter_semibold"
+                android:text="@string/edit"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+        </LinearLayout>
 
         <ImageButton
             android:id="@+id/btn_delete"
-            android:layout_width="38dp"
-            android:layout_height="38dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_marginStart="8dp"
             android:background="@drawable/bg_soft_panel_16"
             android:contentDescription="@string/delete"
@@ -58,8 +79,8 @@
 
         <ImageButton
             android:id="@+id/btn_duplicate"
-            android:layout_width="38dp"
-            android:layout_height="38dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_marginStart="8dp"
             android:background="@drawable/bg_soft_panel_16"
             android:contentDescription="@string/duplicate"
@@ -67,12 +88,13 @@
             android:src="@drawable/ic_duplicate_red" />
     </LinearLayout>
 
-    <com.example.spinwheel.widget.MiniWheelPreviewView
+    <ImageView
         android:id="@+id/preview"
-        android:layout_width="82dp"
-        android:layout_height="82dp"
-        android:layout_marginStart="12dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginEnd="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/spin_wheel" />
 </androidx.constraintlayout.widget.ConstraintLayout>

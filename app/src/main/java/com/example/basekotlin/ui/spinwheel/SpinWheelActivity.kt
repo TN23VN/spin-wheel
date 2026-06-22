@@ -1,6 +1,5 @@
 package com.example.spinwheel.ui.spinwheel
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.widget.Toast
 import com.example.spinwheel.R
@@ -8,6 +7,7 @@ import com.example.spinwheel.base.BaseActivity
 import com.example.spinwheel.base.tap
 import com.example.spinwheel.data.WheelRepository
 import com.example.spinwheel.databinding.ActivitySpinWheelBinding
+import com.example.spinwheel.dialog.winner.WinnerResultDialog
 import com.example.spinwheel.model.WheelModel
 import com.example.spinwheel.model.WheelSlice
 
@@ -23,19 +23,20 @@ class SpinWheelActivity : BaseActivity<ActivitySpinWheelBinding>(ActivitySpinWhe
     }
 
     override fun initView() {
+        binding.viewTop.ivRight.setImageResource(R.drawable.ic_volume_up_black)
         loadWheel()
     }
 
     override fun bindView() {
-        binding.btnBack.tap { onBack() }
+        binding.viewTop.ivLeft.tap { onBack() }
         binding.spinWheel.tap { spin() }
         binding.btnEdit.tap { openEditor() }
         binding.btnMoreOptions.tap {
             startNextActivity(RouletteListActivity::class.java, null)
         }
-        binding.btnSound.tap {
+        binding.viewTop.ivRight.tap {
             soundOn = !soundOn
-            binding.btnSound.setImageResource(
+            binding.viewTop.ivRight.setImageResource(
                 if (soundOn) R.drawable.ic_volume_up_black else R.drawable.ic_volume_off_black
             )
         }
@@ -55,7 +56,7 @@ class SpinWheelActivity : BaseActivity<ActivitySpinWheelBinding>(ActivitySpinWhe
             WheelRepository.getDefaultWheel(this)
         }
         wheelId = wheel.id
-        binding.tvTitle.text = wheel.name.ifBlank { getString(R.string.spin_the_wheel) }
+        binding.viewTop.tvToolBar.text = wheel.name.ifBlank { getString(R.string.spin_the_wheel) }
         binding.tvQuestion.text = wheel.name.ifBlank { getString(R.string.wheel_question) }
         updateWheelView()
     }
@@ -88,12 +89,11 @@ class SpinWheelActivity : BaseActivity<ActivitySpinWheelBinding>(ActivitySpinWhe
     }
 
     private fun showResult(winner: String) {
-        AlertDialog.Builder(this)
-            .setTitle(R.string.winner)
-            .setMessage(winner)
-            .setNegativeButton(R.string.hide) { _, _ -> hideWinner(winner) }
-            .setPositiveButton(R.string.ok, null)
-            .show()
+        WinnerResultDialog(
+            context = this,
+            winner = winner,
+            onRemove = { hideWinner(winner) },
+        ).show()
     }
 
     private fun hideWinner(winner: String) {

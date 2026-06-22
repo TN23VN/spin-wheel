@@ -73,6 +73,7 @@
     <string name="chosen_challenge">Make a lovey-dovey face for 5 seconds</string>
     <string name="roulette_list">Roulette List</string>
     <string name="no_wheel">Oops, There\'s no wheel to spin :&lt;</string>
+    <string name="add_new_roulette">Add New Roullette</string>
     <string name="add_new_roulette_hint">Add a new wheel and start the fun</string>
     <string name="delete">Delete</string>
     <string name="duplicate">Duplicate</string>
@@ -97,6 +98,8 @@
     <string name="ok">OK</string>
     <string name="winner">The winner is...</string>
     <string name="hide">Hide</string>
+    <string name="close">Close</string>
+    <string name="remove">Remove</string>
     <string name="please_wait_result">Please wait for the result</string>
     <string name="keep_at_least_two_slices">Please keep at last two slice to the wheel</string>
     <string name="duplicate_limit">Only duplicate up to 5 wheels</string>

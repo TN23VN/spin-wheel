@@ -1,6 +1,5 @@
 package com.example.spinwheel.ui.choosenumber
 
-import android.app.AlertDialog
 import android.os.Handler
 import android.view.MotionEvent
 import android.widget.Toast
@@ -8,6 +7,8 @@ import com.example.spinwheel.R
 import com.example.spinwheel.base.BaseActivity
 import com.example.spinwheel.base.tap
 import com.example.spinwheel.databinding.ActivityChooseNumberBinding
+import com.example.spinwheel.dialog.choosenumber.DareDialog
+import com.example.spinwheel.dialog.common.MessageDialog
 
 class ChooseNumberActivity :
     BaseActivity<ActivityChooseNumberBinding>(ActivityChooseNumberBinding::inflate) {
@@ -25,29 +26,32 @@ class ChooseNumberActivity :
     }
 
     override fun initView() {
+        binding.viewTop.tvToolBar.text = getString(R.string.choose_number)
+        binding.viewTop.ivRight.setImageResource(R.drawable.ic_volume_up_black)
         val prefs = getSharedPreferences("feature_tutorial", MODE_PRIVATE)
         if (!prefs.getBoolean("choose_number_done", false)) {
-            AlertDialog.Builder(this)
-                .setTitle(R.string.choose_number)
-                .setMessage(R.string.choose_number_tutorial)
-                .setPositiveButton(R.string.ok) { _, _ ->
+            MessageDialog(
+                context = this,
+                title = getString(R.string.choose_number),
+                message = getString(R.string.choose_number_tutorial),
+                onOk = {
                     prefs.edit().putBoolean("choose_number_done", true).apply()
-                }
-                .show()
+                },
+            ).show()
         }
     }
 
     override fun bindView() {
-        binding.btnBack.tap { onBack() }
+        binding.viewTop.ivLeft.tap { onBack() }
         binding.btnRestart.tap { resetGame() }
         binding.numberChip.tap {
             count = if (count >= 4) 1 else count + 1
             binding.tvNumber.text = count.toString()
             resetGame()
         }
-        binding.btnSound.tap {
+        binding.viewTop.ivRight.tap {
             soundOn = !soundOn
-            binding.btnSound.setImageResource(
+            binding.viewTop.ivRight.setImageResource(
                 if (soundOn) R.drawable.ic_volume_up_black else R.drawable.ic_volume_off_black
             )
         }
@@ -102,7 +106,7 @@ class ChooseNumberActivity :
     }
 
     private fun showDareDialog() {
-        val options = arrayOf(
+        val options = listOf(
             "Make a lovey-dovey face for 5 seconds",
             "Raise your hand and shout: I am the chosen one",
             "Do a belly dance for 5 minutes straight",
@@ -119,22 +123,11 @@ class ChooseNumberActivity :
             "Read the last message you sent",
             "Let someone pick your next challenge",
         )
-        val selected = BooleanArray(options.size)
-        var selectedCount = 0
-        AlertDialog.Builder(this)
-            .setTitle(R.string.dare)
-            .setMultiChoiceItems(options, selected) { dialog, which, checked ->
-                if (checked && selectedCount >= count) {
-                    selected[which] = false
-                    (dialog as AlertDialog).listView.setItemChecked(which, false)
-                    Toast.makeText(this, R.string.over_win_limit, Toast.LENGTH_SHORT).show()
-                    return@setMultiChoiceItems
-                }
-                selected[which] = checked
-                selectedCount += if (checked) 1 else -1
-            }
-            .setNegativeButton(R.string.restart) { _, _ -> resetGame() }
-            .setPositiveButton(R.string.ok, null)
-            .show()
+        DareDialog(
+            context = this,
+            options = options,
+            selectionLimit = count,
+            onRestart = { resetGame() },
+        ).show()
     }
 }

@@ -13,32 +13,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageButton
-        android:id="@+id/btn_back"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="46dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/cancel"
-        android:padding="12dp"
-        android:src="@drawable/ic_back"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/tv_title"
+    <include
+        android:id="@+id/view_top"
+        layout="@layout/tool_bar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/archivo_bold"
-        android:gravity="center"
-        android:text="@string/settings"
-        android:textColor="@color/color_main_text"
-        android:textSize="26sp"
-        app:layout_constraintBottom_toBottomOf="@id/btn_back"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/btn_back" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
         android:id="@+id/settings_group"
@@ -55,55 +37,7 @@
         android:paddingBottom="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_title">
-
-        <LinearLayout
-            android:id="@+id/btn_language"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?attr/selectableItemBackground"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_language"
-                app:tint="@color/color_red_crimson_50" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_weight="1"
-                android:fontFamily="@font/inter_medium"
-                android:text="@string/language"
-                android:textColor="@color/color_main_text"
-                android:textSize="18sp" />
-
-            <TextView
-                android:id="@+id/tv_lang"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/inter"
-                android:text="@string/english"
-                android:textColor="@color/color_red_crimson_50"
-                android:textSize="15sp" />
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_arrow_right"
-                app:tint="@color/color_red_crimson_50" />
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginStart="32dp"
-            android:background="@color/color_divider_soft" />
+        app:layout_constraintTop_toBottomOf="@id/view_top">
 
         <LinearLayout
             android:id="@+id/btn_rate_us"
