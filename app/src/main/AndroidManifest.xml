@@ -65,6 +65,32 @@
             android:screenOrientation="portrait" />
 
         <activity
+            android:name=".ui.spinwheel.SpinWheelActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".ui.spinwheel.RouletteListActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".ui.spinwheel.WheelEditorActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".ui.choosenumber.ChooseNumberActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".ui.homograft.HomograftActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
             android:name=".ui.policy.PolicyActivity"
             android:exported="false"
             android:screenOrientation="portrait" />

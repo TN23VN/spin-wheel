@@ -5,7 +5,6 @@ import android.view.ViewGroup
 import com.bumptech.glide.Glide
 import com.example.spinwheel.R
 import com.example.spinwheel.base.BaseAdapter
-import com.example.spinwheel.base.gone
 import com.example.spinwheel.base.tap
 import com.example.spinwheel.model.LanguageModel
 import com.example.spinwheel.databinding.ItemLanguageBinding
@@ -28,7 +27,6 @@ class LanguageAdapter(var onClick: (String) -> Unit) :
     }
 
     override fun setData(binding: ItemLanguageBinding, item: LanguageModel, layoutPosition: Int) {
-        binding.rdbCheck.gone()
         binding.tvLang.text = item.name
 
         if (item.active) {

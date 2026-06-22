@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.provider.Settings
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,6 +14,7 @@ import com.example.spinwheel.base.tap
 import com.example.spinwheel.databinding.ActivityPermissionBinding
 import com.example.spinwheel.ui.main.MainActivity
 import com.example.spinwheel.base.BaseActivity
+import com.example.spinwheel.util.SharedPreUtils
 
 class PermissionActivity :
     BaseActivity<ActivityPermissionBinding>(ActivityPermissionBinding::inflate) {
@@ -22,13 +22,11 @@ class PermissionActivity :
     private lateinit var prefs: SharedPreferences
     private lateinit var cameraLauncher: ActivityResultLauncher<String>
     private lateinit var locationLauncher: ActivityResultLauncher<String>
-    private lateinit var notificationLauncher: ActivityResultLauncher<String>
 
     override fun initView() {
         prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         cameraLauncher = registerPermissionLauncher(PermissionItem.CAMERA)
         locationLauncher = registerPermissionLauncher(PermissionItem.LOCATION)
-        notificationLauncher = registerPermissionLauncher(PermissionItem.NOTIFICATION)
         updateSwitchStates()
     }
 
@@ -37,7 +35,7 @@ class PermissionActivity :
             startNextActivity()
         }
         binding.switchNoti.setOnClickListener {
-            handlePermissionClick(PermissionItem.NOTIFICATION)
+            handlePermissionClick(PermissionItem.CAMERA)
         }
         binding.switchMemory.setOnClickListener {
             handlePermissionClick(PermissionItem.LOCATION)
@@ -76,9 +74,8 @@ class PermissionActivity :
     }
 
     private fun updateSwitchStates() {
-        updateSwitch(binding.switchCamera, PermissionItem.CAMERA)
-        updateSwitch(binding.switchLocation, PermissionItem.LOCATION)
-        updateSwitch(binding.switchNoti, PermissionItem.NOTIFICATION)
+        updateSwitch(binding.switchNoti, PermissionItem.CAMERA)
+        updateSwitch(binding.switchMemory, PermissionItem.LOCATION)
     }
 
     private fun updateSwitch(switch: SwitchCompat, permissionItem: PermissionItem) {
@@ -92,10 +89,6 @@ class PermissionActivity :
     }
 
     private fun isGranted(permissionItem: PermissionItem): Boolean {
-        if (permissionItem == PermissionItem.NOTIFICATION && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-            return true
-        }
-
         return ContextCompat.checkSelfPermission(
             this,
             permissionItem.permission
@@ -106,7 +99,6 @@ class PermissionActivity :
         return when (this) {
             PermissionItem.CAMERA -> cameraLauncher
             PermissionItem.LOCATION -> locationLauncher
-            PermissionItem.NOTIFICATION -> notificationLauncher
         }
     }
 
@@ -128,6 +120,7 @@ class PermissionActivity :
     }
 
     private fun startNextActivity() {
+        SharedPreUtils.getInstance().setFirstApp(this)
         startNextActivity(MainActivity::class.java, null)
         finishAffinity()
     }
@@ -142,7 +135,6 @@ class PermissionActivity :
     ) {
         CAMERA(Manifest.permission.CAMERA, "camera_deny_count"),
         LOCATION(Manifest.permission.ACCESS_FINE_LOCATION, "location_deny_count"),
-        NOTIFICATION(Manifest.permission.POST_NOTIFICATIONS, "notification_deny_count"),
     }
 
     private companion object {

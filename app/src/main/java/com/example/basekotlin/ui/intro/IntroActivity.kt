@@ -1,7 +1,10 @@
 package com.example.spinwheel.ui.intro
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.widget.ImageView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
@@ -85,12 +88,18 @@ class IntroActivity : BaseActivity<ActivityIntroBinding>(ActivityIntroBinding::i
     }
 
     private fun startNextActivity() {
-        if (SharedPreUtils.getInstance().getCountOpenApp(this) > 1) {
+        SharedPreUtils.getInstance().setFirstApp(this)
+        if (hasRequiredPermissions()) {
             startNextActivity(MainActivity::class.java, null)
         } else {
             startNextActivity(PermissionActivity::class.java, null)
         }
         finish()
+    }
+
+    private fun hasRequiredPermissions(): Boolean {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun changeContentInit(position: Int) {

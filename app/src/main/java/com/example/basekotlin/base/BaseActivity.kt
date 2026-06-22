@@ -1,11 +1,13 @@
 package com.example.spinwheel.base
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.viewbinding.ViewBinding
 import com.example.spinwheel.R
 import com.example.spinwheel.util.SystemUtil
@@ -21,6 +23,8 @@ abstract class BaseActivity<VB : ViewBinding>(val bindingFactory: (LayoutInflate
 
         setContentView(binding.root)
 
+        window.statusBarColor = Color.TRANSPARENT
+        WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
         window.hideNavigation()
 
         getData()
