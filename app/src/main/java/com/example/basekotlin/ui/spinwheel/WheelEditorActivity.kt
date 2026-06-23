@@ -1,16 +1,12 @@
 package com.example.spinwheel.ui.spinwheel
 
-import android.graphics.Color
-import android.graphics.drawable.GradientDrawable
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.Gravity
 import android.view.View
-import android.widget.EditText
+import android.view.inputmethod.EditorInfo
 import android.widget.ImageButton
-import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.example.spinwheel.R
@@ -19,8 +15,9 @@ import com.example.spinwheel.base.inVisible
 import com.example.spinwheel.base.tap
 import com.example.spinwheel.data.WheelRepository
 import com.example.spinwheel.databinding.ActivityWheelEditorBinding
+import com.example.spinwheel.databinding.ItemSliceBinding
+import com.example.spinwheel.dialog.common.ColorPickerDialog
 import com.example.spinwheel.dialog.common.ConfirmDialog
-import com.example.spinwheel.dialog.common.SingleChoiceDialog
 import com.example.spinwheel.model.WheelModel
 import com.example.spinwheel.model.WheelSlice
 
@@ -49,60 +46,76 @@ class WheelEditorActivity :
         }
         binding.viewTop.ivRight.inVisible()
         binding.edtName.setText(wheel.name)
-        binding.seekFontSize.progress = (wheel.fontSize - 10).coerceIn(0, 14)
-        binding.seekRepeat.progress = (wheel.repeat - 1).coerceIn(0, 4)
-        updateThemeLabel()
         renderSlices()
-        updatePreview()
     }
 
     override fun bindView() {
         binding.viewTop.ivLeft.tap { handleBack() }
         binding.btnSave.tap { save() }
-        binding.btnPreview.tap { updatePreview() }
-        binding.btnAddOption.tap { addOption() }
-        binding.btnTheme.tap { showThemePicker() }
+        binding.btnPreview.tap { previewWheel() }
+        binding.btnEditName.tap { binding.edtName.requestFocus() }
 
         binding.edtName.addTextChangedListener(simpleWatcher {
             wheel.name = binding.edtName.text.toString()
             markChanged()
         })
-        binding.seekFontSize.setOnSeekBarChangeListener(simpleSeek { progress ->
-            wheel.fontSize = progress + 10
-            markChanged()
-            updatePreview()
-        })
-        binding.seekRepeat.setOnSeekBarChangeListener(simpleSeek { progress ->
-            wheel.repeat = progress + 1
-            markChanged()
-            updatePreview()
-        })
     }
 
-    private fun addOption() {
-        if (wheel.slices.size >= 24) {
+    private fun addOption(label: String) {
+        if (wheel.slices.size >= MAX_OPTIONS) {
             Toast.makeText(this, R.string.max_24_options, Toast.LENGTH_SHORT).show()
             return
         }
-        wheel.slices.add(WheelSlice("", WheelRepository.colorFor(wheel.themeIndex, wheel.slices.size)))
+
+        wheel.slices.add(
+            WheelSlice(
+                label = label.trim(),
+                color = WheelRepository.colorFor(wheel.themeIndex, wheel.slices.size),
+            ),
+        )
         markChanged()
         renderSlices()
-        updatePreview()
     }
 
     private fun save() {
-        val trimmed = binding.edtName.text.toString().trim()
-        if (trimmed.isBlank()) {
-            Toast.makeText(this, R.string.enter_name_of_wheel, Toast.LENGTH_SHORT).show()
-            return
-        }
-        wheel.name = trimmed
-        wheel.slices.forEach { it.label = it.label.trim() }
-        WheelRepository.saveWheel(this, wheel)
+        if (!prepareWheel()) return
+
+        persistWheel()
         startNextActivity(SpinWheelActivity::class.java, Bundle().apply {
             putLong(SpinWheelActivity.EXTRA_WHEEL_ID, wheel.id)
         })
         finish()
+    }
+
+    private fun previewWheel() {
+        if (!prepareWheel()) return
+
+        persistWheel()
+        startNextActivity(SpinWheelActivity::class.java, Bundle().apply {
+            putLong(SpinWheelActivity.EXTRA_WHEEL_ID, wheel.id)
+        })
+    }
+
+    private fun prepareWheel(): Boolean {
+        val trimmed = binding.edtName.text.toString().trim()
+        if (trimmed.isBlank()) {
+            Toast.makeText(this, R.string.enter_name_of_wheel, Toast.LENGTH_SHORT).show()
+            return false
+        }
+        if (wheel.slices.size < MIN_OPTIONS) {
+            Toast.makeText(this, R.string.add_at_least_two_slices, Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        wheel.name = trimmed
+        wheel.slices.forEach { it.label = it.label.trim() }
+        return true
+    }
+
+    private fun persistWheel() {
+        WheelRepository.saveWheel(this, wheel)
+        originalJson = wheel.toString()
+        markChanged()
     }
 
     private fun handleBack() {
@@ -123,136 +136,89 @@ class WheelEditorActivity :
         finishThisActivity()
     }
 
-    private fun showThemePicker() {
-        SingleChoiceDialog(
-            context = this,
-            title = getString(R.string.choose_wheel_color),
-            options = WheelRepository.themes,
-            selectedIndex = wheel.themeIndex,
-            confirmText = getString(R.string.ok),
-            onConfirm = { selected ->
-                wheel = WheelRepository.applyTheme(wheel, selected)
-                markChanged()
-                updateThemeLabel()
-                renderSlices()
-                updatePreview()
-            },
-        ).show()
-    }
-
     private fun showColorPicker(index: Int) {
-        val colors = WheelRepository.defaultColors
-        val labels = colors.map { "#%06X".format(0xFFFFFF and it) }
-        val selected = colors.indexOf(wheel.slices[index].color).takeIf { it >= 0 } ?: 0
-        SingleChoiceDialog(
+        ColorPickerDialog(
             context = this,
-            title = getString(R.string.edit),
-            options = labels,
-            selectedIndex = selected,
-            confirmText = getString(R.string.ok),
-            onConfirm = { selectedColor ->
-                wheel.slices[index].color = colors[selectedColor]
+            selectedColor = wheel.slices[index].color,
+            onConfirm = { color ->
+                wheel.slices[index].color = color
                 markChanged()
                 renderSlices()
-                updatePreview()
             },
         ).show()
     }
 
     private fun renderSlices() {
         binding.slicesContainer.removeAllViews()
-        if (wheel.slices.isEmpty()) {
-            binding.slicesContainer.addView(emptyMessage())
-            return
-        }
+        binding.slicesContainer.addView(addSliceRow())
 
         wheel.slices.forEachIndexed { index, slice ->
             binding.slicesContainer.addView(sliceRow(index, slice))
         }
     }
 
+    private fun addSliceRow(): View {
+        val row = ItemSliceBinding.inflate(layoutInflater, binding.slicesContainer, false)
+        tintButton(
+            row.btnEdit,
+            ContextCompat.getColor(this, R.color.color_red_crimson_50),
+            ContextCompat.getColor(this, R.color.white),
+        )
+        row.btnEdit.setImageResource(R.drawable.ic_add)
+        row.btnDelete.visibility = View.INVISIBLE
+        row.edtName.setText("")
+        row.edtName.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                addOption(row.edtName.text.toString())
+                true
+            } else {
+                false
+            }
+        }
+        row.btnEdit.tap { addOption(row.edtName.text.toString()) }
+        return row.root
+    }
+
     private fun sliceRow(index: Int, slice: WheelSlice): View {
-        val row = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(0, dp(4), 0, dp(4))
-        }
+        val row = ItemSliceBinding.inflate(layoutInflater, binding.slicesContainer, false)
+        tintButton(
+            row.btnEdit,
+            slice.color,
+            ContextCompat.getColor(this, R.color.black),
+        )
+        row.btnEdit.setImageResource(R.drawable.ic_edit_white)
+        row.btnEdit.tap { showColorPicker(index) }
 
-        val color = View(this).apply {
-            background = GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
-                cornerRadius = dp(8).toFloat()
-                setColor(slice.color)
-            }
-            setOnClickListener { showColorPicker(index) }
-        }
-        row.addView(color, LinearLayout.LayoutParams(dp(40), dp(40)))
+        row.btnDelete.visibility = View.VISIBLE
+        row.btnDelete.tap { deleteSlice(index) }
 
-        val input = EditText(this).apply {
-            setText(slice.label)
-            hint = getString(R.string.insert_player_name)
-            setSingleLine(true)
-            textSize = 14f
-            setTextColor(ContextCompat.getColor(this@WheelEditorActivity, R.color.color_main_text))
-            setPadding(dp(12), 0, dp(12), 0)
-            background = ContextCompat.getDrawable(this@WheelEditorActivity, R.drawable.bg_outline_red_16)
-            addTextChangedListener(simpleWatcher {
-                wheel.slices.getOrNull(index)?.label = text.toString()
-                markChanged()
-                updatePreview()
-            })
-        }
-        row.addView(input, LinearLayout.LayoutParams(0, dp(44), 1f).apply {
-            marginStart = dp(8)
+        row.edtName.setText(slice.label)
+        row.edtName.addTextChangedListener(simpleWatcher {
+            wheel.slices.getOrNull(index)?.label = row.edtName.text.toString()
+            markChanged()
         })
-
-        val delete = ImageButton(this).apply {
-            background = ContextCompat.getDrawable(this@WheelEditorActivity, R.drawable.bg_soft_panel_16)
-            setImageResource(R.drawable.ic_delete_red)
-            setPadding(dp(10), dp(10), dp(10), dp(10))
-            setOnClickListener {
-                wheel.slices.removeAt(index)
-                markChanged()
-                renderSlices()
-                updatePreview()
-                if (wheel.slices.size < 2) {
-                    Toast.makeText(this@WheelEditorActivity, R.string.add_at_least_two_slices, Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-        row.addView(delete, LinearLayout.LayoutParams(dp(44), dp(44)).apply {
-            marginStart = dp(8)
-        })
-
-        return row
+        return row.root
     }
 
-    private fun emptyMessage(): TextView {
-        return TextView(this).apply {
-            text = getString(R.string.add_at_least_two_slices)
-            setTextColor(Color.parseColor("#990F0705"))
-            gravity = Gravity.CENTER
-            setPadding(0, dp(16), 0, dp(16))
+    private fun deleteSlice(index: Int) {
+        if (wheel.slices.size <= MIN_OPTIONS) {
+            Toast.makeText(this, R.string.keep_at_least_two_slices, Toast.LENGTH_SHORT).show()
+            return
         }
+
+        wheel.slices.removeAt(index)
+        markChanged()
+        renderSlices()
     }
 
-    private fun updatePreview() {
-        val repeated = mutableListOf<WheelSlice>()
-        repeat(wheel.repeat.coerceAtLeast(1)) {
-            repeated.addAll(wheel.slices.map { it.copy() })
-        }
-        binding.preview.setSlices(repeated, wheel.fontSize)
-    }
-
-    private fun updateThemeLabel() {
-        binding.btnTheme.text = WheelRepository.themes.getOrElse(wheel.themeIndex) { WheelRepository.themes.first() }
+    private fun tintButton(button: ImageButton, backgroundColor: Int, iconColor: Int) {
+        button.backgroundTintList = ColorStateList.valueOf(backgroundColor)
+        button.imageTintList = ColorStateList.valueOf(iconColor)
     }
 
     private fun markChanged() {
         hasChanges = wheel.toString() != originalJson
     }
-
-    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 
     private fun simpleWatcher(onChanged: () -> Unit): TextWatcher {
         return object : TextWatcher {
@@ -262,19 +228,11 @@ class WheelEditorActivity :
         }
     }
 
-    private fun simpleSeek(onChanged: (Int) -> Unit): android.widget.SeekBar.OnSeekBarChangeListener {
-        return object : android.widget.SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: android.widget.SeekBar?, progress: Int, fromUser: Boolean) {
-                if (fromUser) onChanged(progress)
-            }
-
-            override fun onStartTrackingTouch(seekBar: android.widget.SeekBar?) = Unit
-            override fun onStopTrackingTouch(seekBar: android.widget.SeekBar?) = Unit
-        }
-    }
-
     companion object {
         const val EXTRA_WHEEL_ID = "extra_wheel_id"
         const val EXTRA_THEME_INDEX = "extra_theme_index"
+
+        private const val MIN_OPTIONS = 2
+        private const val MAX_OPTIONS = 24
     }
 }

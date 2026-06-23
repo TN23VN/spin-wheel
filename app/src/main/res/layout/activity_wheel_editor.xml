@@ -26,7 +26,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
-        app:layout_constraintBottom_toTopOf="@id/bottom_bar"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/view_top">
@@ -36,179 +36,108 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingStart="16dp"
-            android:paddingTop="20dp"
+            android:paddingTop="48dp"
             android:paddingEnd="16dp"
-            android:paddingBottom="24dp">
-
-            <com.example.spinwheel.widget.SpinWheelView
-                android:id="@+id/preview"
-                android:layout_width="match_parent"
-                android:layout_height="260dp" />
+            android:paddingBottom="80dp">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 android:fontFamily="@font/inter_semibold"
                 android:text="@string/wheel_name"
                 android:textColor="@color/color_main_text"
-                android:textSize="13sp" />
-
-            <EditText
-                android:id="@+id/edt_name"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="6dp"
-                android:background="@drawable/bg_outline_red_16"
-                android:fontFamily="@font/inter"
-                android:hint="@string/insert_wheel_name"
-                android:inputType="textCapSentences"
-                android:paddingHorizontal="14dp"
-                android:singleLine="true"
-                android:textColor="@color/color_main_text"
-                android:textSize="14sp" />
+                android:textSize="16sp" />
 
             <LinearLayout
+                android:id="@+id/name_input_container"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="14dp"
+                android:layout_height="52dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_outline_16"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:paddingStart="20dp"
+                android:paddingEnd="16dp">
 
-                <TextView
+                <EditText
+                    android:id="@+id/edt_name"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:fontFamily="@font/inter_semibold"
-                    android:text="@string/wheel_color"
+                    android:background="@android:color/transparent"
+                    android:fontFamily="@font/inter"
+                    android:hint="@string/insert_wheel_name"
+                    android:imeOptions="actionDone"
+                    android:inputType="textCapSentences"
+                    android:maxLines="1"
+                    android:singleLine="true"
                     android:textColor="@color/color_main_text"
-                    android:textSize="13sp" />
+                    android:textColorHint="@color/dark_overlay_40"
+                    android:textSize="16sp" />
 
-                <TextView
-                    android:id="@+id/btn_theme"
-                    android:layout_width="wrap_content"
-                    android:layout_height="40dp"
-                    android:background="@drawable/bg_number_chip"
-                    android:fontFamily="@font/inter_semibold"
-                    android:gravity="center"
-                    android:minWidth="112dp"
-                    android:paddingHorizontal="14dp"
-                    android:text="@string/classic"
-                    android:textColor="@color/color_main_text"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/inter_semibold"
-                    android:text="@string/font_size"
-                    android:textColor="@color/color_main_text"
-                    android:textSize="13sp" />
-
-                <SeekBar
-                    android:id="@+id/seek_font_size"
-                    android:layout_width="180dp"
-                    android:layout_height="wrap_content"
-                    android:max="14"
-                    android:progress="4" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/inter_semibold"
-                    android:text="@string/repeat_option"
-                    android:textColor="@color/color_main_text"
-                    android:textSize="13sp" />
-
-                <SeekBar
-                    android:id="@+id/seek_repeat"
-                    android:layout_width="180dp"
-                    android:layout_height="wrap_content"
-                    android:max="4"
-                    android:progress="0" />
+                <ImageButton
+                    android:id="@+id/btn_edit_name"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/edit"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_edit_white"
+                    app:tint="@color/black_20" />
             </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="28dp"
                 android:fontFamily="@font/inter_semibold"
                 android:text="@string/slices"
                 android:textColor="@color/color_main_text"
-                android:textSize="13sp" />
+                android:textSize="16sp" />
 
             <LinearLayout
                 android:id="@+id/slices_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="vertical" />
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_soft_panel_24"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="16dp" />
 
-            <TextView
-                android:id="@+id/btn_add_option"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_outline_red_16"
-                android:fontFamily="@font/inter_semibold"
+                android:layout_marginTop="40dp"
                 android:gravity="center"
-                android:text="@string/add_option"
-                android:textColor="@color/color_red_crimson_50"
-                android:textSize="15sp" />
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/btn_preview"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_outline_red_16"
+                    android:fontFamily="@font/inter_semibold"
+                    android:gravity="center"
+                    android:text="@string/preview"
+                    android:textColor="@color/color_main_text"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/btn_save"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_primary_red_16"
+                    android:fontFamily="@font/inter_semibold"
+                    android:gravity="center"
+                    android:text="@string/save"
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
-
-    <LinearLayout
-        android:id="@+id/bottom_bar"
-        android:layout_width="0dp"
-        android:layout_height="72dp"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <TextView
-            android:id="@+id/btn_preview"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_marginEnd="8dp"
-            android:layout_weight="1"
-            android:background="@drawable/bg_outline_red_16"
-            android:fontFamily="@font/inter_semibold"
-            android:gravity="center"
-            android:text="@string/preview"
-            android:textColor="@color/color_main_text"
-            android:textSize="15sp" />
-
-        <TextView
-            android:id="@+id/btn_save"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:background="@drawable/bg_primary_red_16"
-            android:fontFamily="@font/inter_semibold"
-            android:gravity="center"
-            android:text="@string/save"
-            android:textColor="@color/white"
-            android:textSize="15sp" />
-    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

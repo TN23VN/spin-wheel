@@ -11,6 +11,7 @@ abstract class BaseDialog<VB : ViewBinding>(context: Context, canAble: Boolean) 
     Dialog(context, R.style.BaseDialog) {
 
     var binding: VB
+    private var isViewInitialized = false
     protected abstract fun setBinding(): VB
 
     init {
@@ -19,9 +20,6 @@ abstract class BaseDialog<VB : ViewBinding>(context: Context, canAble: Boolean) 
         binding = setBinding()
         setContentView(binding.root)
         setCancelable(canAble)
-
-        initView()
-        bindView()
     }
 
     open fun initView() {
@@ -32,4 +30,12 @@ abstract class BaseDialog<VB : ViewBinding>(context: Context, canAble: Boolean) 
 
     }
 
+    override fun show() {
+        if (!isViewInitialized) {
+            initView()
+            bindView()
+            isViewInitialized = true
+        }
+        super.show()
+    }
 }

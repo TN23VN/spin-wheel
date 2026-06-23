@@ -8,6 +8,7 @@ import com.example.spinwheel.base.BaseActivity
 import com.example.spinwheel.base.tap
 import com.example.spinwheel.databinding.ActivityHomograftBinding
 import com.example.spinwheel.dialog.common.MessageDialog
+import com.example.spinwheel.dialog.common.NumberPickerBottomSheet
 
 class HomograftActivity : BaseActivity<ActivityHomograftBinding>(ActivityHomograftBinding::inflate) {
 
@@ -42,9 +43,7 @@ class HomograftActivity : BaseActivity<ActivityHomograftBinding>(ActivityHomogra
         binding.viewTop.ivLeft.tap { onBack() }
         binding.btnRestart.tap { resetGame() }
         binding.teamChip.tap {
-            teamCount = if (teamCount >= 5) 2 else teamCount + 1
-            binding.tvTeamCount.text = teamCount.toString()
-            resetGame()
+            showTeamCountPicker()
         }
         binding.viewTop.ivRight.tap {
             soundOn = !soundOn
@@ -100,5 +99,21 @@ class HomograftActivity : BaseActivity<ActivityHomograftBinding>(ActivityHomogra
         resultShown = false
         activePlayers = 0
         binding.teamView.reset()
+    }
+
+    private fun showTeamCountPicker() {
+        NumberPickerBottomSheet(
+            context = this,
+            title = getString(R.string.number_of_teams),
+            options = (2..5).toList(),
+            selectedValue = teamCount,
+            onSelected = { selectedTeamCount ->
+                if (selectedTeamCount != teamCount) {
+                    teamCount = selectedTeamCount
+                    binding.tvTeamCount.text = teamCount.toString()
+                    resetGame()
+                }
+            },
+        ).show()
     }
 }

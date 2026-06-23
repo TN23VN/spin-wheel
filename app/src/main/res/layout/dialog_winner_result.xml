@@ -26,6 +26,7 @@
             android:layout_height="124dp"
             android:layout_marginTop="16dp"
             android:contentDescription="@string/winner"
+            android:padding="8dp"
             android:src="@drawable/ic_firecrack"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -40,7 +41,7 @@
             android:includeFontPadding="false"
             android:text="@string/winner"
             android:textColor="@color/color_main_title"
-            android:textSize="22sp"
+            android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/img_firework" />
@@ -52,12 +53,12 @@
             android:layout_marginHorizontal="24dp"
             android:layout_marginTop="14dp"
             android:ellipsize="end"
-            android:fontFamily="@font/archivo_bold"
+            android:fontFamily="@font/inter_medium"
             android:gravity="center"
             android:includeFontPadding="false"
             android:maxLines="1"
             android:textColor="@color/color_main_text"
-            android:textSize="34sp"
+            android:textSize="32sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_title" />
@@ -77,12 +78,12 @@
             android:includeFontPadding="false"
             android:text="@string/close"
             android:textColor="@color/color_main_text"
-            android:textSize="18sp"
+            android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/btn_remove"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintHorizontal_chainStyle="spread"
-            app:layout_constraintHorizontal_weight="1" />
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
             android:id="@+id/btn_remove"
@@ -99,10 +100,10 @@
             android:includeFontPadding="false"
             android:text="@string/remove"
             android:textColor="@color/white"
-            android:textSize="18sp"
+            android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/btn_close"
-            app:layout_constraintHorizontal_weight="1" />
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toEndOf="@id/btn_close" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

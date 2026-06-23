@@ -95,6 +95,9 @@
     <string name="discard_changes">Discard Changes?</string>
     <string name="discard">Discard</string>
     <string name="choose_wheel_color">Choose wheel color</string>
+    <string name="color">Color</string>
+    <string name="custom_color">Custom Color</string>
+    <string name="choose_color_desire">It\'s time to choose a color that matches\nyour desire</string>
     <string name="ok">OK</string>
     <string name="winner">The winner is...</string>
     <string name="hide">Hide</string>
@@ -113,6 +116,12 @@
     <string name="need_hold_enough">Need to hold fingers for 3 seconds</string>
     <string name="choose_number_tutorial">Choose the number of winners, then keep fingers on the screen for 3 seconds.</string>
     <string name="homograft_tutorial">Choose the number of teams, then keep fingers on the screen for 3 seconds.</string>
+    <string name="number_of_chosen_people">Number of chosen people</string>
+    <string name="number_of_teams">Number of teams</string>
     <string name="dare">Dare</string>
     <string name="over_win_limit">Oops! You\'ve gone over the win limit</string>
+    <string name="try_again">Try Again</string>
+    <string name="exit">Exit</string>
+    <string name="warning">Warning</string>
+    <string name="if_you_leave_now">If you leave now, all unsaved edits will be lost. Are you sure you want to exit?</string>
 </resources>

@@ -9,6 +9,7 @@ import com.example.spinwheel.base.tap
 import com.example.spinwheel.databinding.ActivityChooseNumberBinding
 import com.example.spinwheel.dialog.choosenumber.DareDialog
 import com.example.spinwheel.dialog.common.MessageDialog
+import com.example.spinwheel.dialog.common.NumberPickerBottomSheet
 
 class ChooseNumberActivity :
     BaseActivity<ActivityChooseNumberBinding>(ActivityChooseNumberBinding::inflate) {
@@ -45,9 +46,7 @@ class ChooseNumberActivity :
         binding.viewTop.ivLeft.tap { onBack() }
         binding.btnRestart.tap { resetGame() }
         binding.numberChip.tap {
-            count = if (count >= 4) 1 else count + 1
-            binding.tvNumber.text = count.toString()
-            resetGame()
+            showNumberPicker()
         }
         binding.viewTop.ivRight.tap {
             soundOn = !soundOn
@@ -103,6 +102,22 @@ class ChooseNumberActivity :
         resultShown = false
         activePlayers = 0
         binding.challengeView.reset()
+    }
+
+    private fun showNumberPicker() {
+        NumberPickerBottomSheet(
+            context = this,
+            title = getString(R.string.number_of_chosen_people),
+            options = (1..4).toList(),
+            selectedValue = count,
+            onSelected = { selectedCount ->
+                if (selectedCount != count) {
+                    count = selectedCount
+                    binding.tvNumber.text = count.toString()
+                    resetGame()
+                }
+            },
+        ).show()
     }
 
     private fun showDareDialog() {

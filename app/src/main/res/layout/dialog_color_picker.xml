@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="16dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_winner_dialog"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="16dp">
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/archivo_bold"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="@string/color"
+            android:textColor="@color/color_main_text"
+            android:textSize="24sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_message"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="18dp"
+            android:fontFamily="@font/inter_medium"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:lineSpacingExtra="6dp"
+            android:text="@string/choose_color_desire"
+            android:textColor="@color/color_main_title"
+            android:textSize="17sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_title" />
+
+        <LinearLayout
+            android:id="@+id/picker_content"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_goneMarginTop="28dp"
+            app:layout_constraintTop_toBottomOf="@id/tv_message">
+
+            <LinearLayout
+                android:id="@+id/color_rows"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/row_top"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:gravity="center"
+                    android:orientation="horizontal" />
+
+                <LinearLayout
+                    android:id="@+id/row_bottom"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    android:orientation="horizontal" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/custom_controls"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <com.example.spinwheel.widget.ColorFieldView
+                    android:id="@+id/color_field"
+                    android:layout_width="match_parent"
+                    android:layout_height="260dp" />
+
+                <com.example.spinwheel.widget.HueSliderView
+                    android:id="@+id/hue_slider"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="22dp" />
+
+                <com.example.spinwheel.widget.AlphaSliderView
+                    android:id="@+id/alpha_slider"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="18dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/btn_cancel"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/bg_winner_close"
+            android:clickable="true"
+            android:focusable="true"
+            android:fontFamily="@font/inter_semibold"
+            android:foreground="?attr/selectableItemBackground"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="@string/cancel"
+            android:textColor="@color/color_main_text"
+            android:textSize="17sp"
+            app:layout_constraintEnd_toStartOf="@id/btn_confirm"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/picker_content" />
+
+        <TextView
+            android:id="@+id/btn_confirm"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_winner_remove"
+            android:clickable="true"
+            android:focusable="true"
+            android:fontFamily="@font/inter_semibold"
+            android:foreground="?attr/selectableItemBackground"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="@string/ok"
+            android:textColor="@color/white"
+            android:textSize="17sp"
+            app:layout_constraintBottom_toBottomOf="@id/btn_cancel"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toEndOf="@id/btn_cancel"
+            app:layout_constraintTop_toTopOf="@id/btn_cancel" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>
