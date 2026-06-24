@@ -19,23 +19,25 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class NumberPickerBottomSheet(
-    context: Context,
+    private val context: Context,
     private val title: CharSequence,
     private val options: List<Int>,
-    private val selectedValue: Int,
+    selectedValue: Int,
     private val onSelected: (Int) -> Unit,
 ) {
 
     private val dialog = BottomSheetDialog(context)
     private val binding = BottomSheetNumberPickerBinding.inflate(LayoutInflater.from(context))
     private val rowHeight = dp(context, ROW_HEIGHT_DP)
+    private var currentValue = selectedValue
 
     init {
+        dialog.setCancelable(false)
         dialog.setContentView(binding.root)
         dialog.behavior.skipCollapsed = true
         binding.tvTitle.text = title
         binding.btnClose.tap { dialog.dismiss() }
-        renderOptions(context)
+        renderOptions()
 
         dialog.setOnShowListener {
             dialog.window?.setDimAmount(DIM_AMOUNT)
@@ -50,7 +52,7 @@ class NumberPickerBottomSheet(
         dialog.show()
     }
 
-    private fun renderOptions(context: Context) {
+    private fun renderOptions() {
         val selectedColor = ContextCompat.getColor(context, R.color.color_main)
         val defaultColor = ContextCompat.getColor(context, R.color.color_text_second)
         val font = ResourcesCompat.getFont(context, R.font.inter_semibold)
@@ -58,7 +60,7 @@ class NumberPickerBottomSheet(
 
         binding.optionsContainer.removeAllViews()
         options.forEach { option ->
-            val isSelected = option == selectedValue
+            val isSelected = option == currentValue
             val optionView = TextView(context).apply {
                 text = option.toString()
                 gravity = Gravity.CENTER
@@ -72,8 +74,12 @@ class NumberPickerBottomSheet(
                     null
                 }
                 tap {
-                    dialog.dismiss()
-                    onSelected(option)
+                    if (option != currentValue) {
+                        currentValue = option
+                        onSelected(option)
+                        renderOptions()
+                        scrollToSelected()
+                    }
                 }
             }
 
@@ -88,7 +94,7 @@ class NumberPickerBottomSheet(
     }
 
     private fun scrollToSelected() {
-        val selectedIndex = options.indexOf(selectedValue).coerceAtLeast(0)
+        val selectedIndex = options.indexOf(currentValue).coerceAtLeast(0)
         val scrollY = (selectedIndex - 1).coerceAtLeast(0) * rowHeight
         binding.optionsScroll.post {
             binding.optionsScroll.scrollTo(0, scrollY)

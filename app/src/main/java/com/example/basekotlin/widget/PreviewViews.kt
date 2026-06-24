@@ -1,5 +1,8 @@
 package com.example.spinwheel.widget
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -9,6 +12,7 @@ import android.graphics.RectF
 import android.graphics.Typeface
 import android.util.AttributeSet
 import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
@@ -152,33 +156,96 @@ class ChallengeTouchView @JvmOverloads constructor(
     private var resultCount = 0
     private var totalPlayers = 0
     private var resultText = ""
+    private var winnerIndexes = emptySet<Int>()
+    private var teamAssignments = emptyList<Int>()
+    private var teamAnimationProgress = 1f
+    private var teamAnimator: ValueAnimator? = null
 
     fun reveal() {
         showWinners(1, 1)
     }
 
     fun showWinners(count: Int, players: Int) {
+        teamAnimator?.cancel()
         state = State.WINNERS
         resultCount = count.coerceAtLeast(1)
-        totalPlayers = players.coerceAtLeast(resultCount)
+        totalPlayers = players.coerceAtLeast(resultCount).coerceAtMost(MAX_VISIBLE_PLAYERS)
+        winnerIndexes = (0 until totalPlayers).shuffled().take(resultCount).toSet()
+        teamAssignments = emptyList()
+        teamAnimationProgress = 1f
         resultText = "Winner"
         invalidate()
     }
 
-    fun showTeams(count: Int, players: Int) {
+    fun showTeams(
+        count: Int,
+        players: Int,
+        animationDurationMs: Long = 0L,
+        onAnimationEnd: (() -> Unit)? = null,
+    ) {
+        teamAnimator?.cancel()
         state = State.TEAMS
-        resultCount = count.coerceAtLeast(2)
-        totalPlayers = players.coerceAtLeast(resultCount)
+        resultCount = count.coerceIn(MIN_TEAM_COUNT, MAX_TEAM_COUNT)
+        totalPlayers = players.coerceAtLeast(resultCount).coerceAtMost(MAX_VISIBLE_PLAYERS)
+        val assignments = mutableListOf<Int>()
+        val baseTeamSize = totalPlayers / resultCount
+        val remainder = totalPlayers % resultCount
+        repeat(resultCount) { team ->
+            repeat(baseTeamSize + if (team < remainder) 1 else 0) {
+                assignments.add(team)
+            }
+        }
+        teamAssignments = assignments.shuffled()
+        winnerIndexes = emptySet()
+        teamAnimationProgress = if (animationDurationMs > 0L) 0f else 1f
         resultText = "Team"
         invalidate()
+
+        if (animationDurationMs <= 0L) {
+            onAnimationEnd?.invoke()
+            return
+        }
+
+        startTeamAnimation(animationDurationMs, onAnimationEnd)
     }
 
     fun reset() {
+        teamAnimator?.cancel()
         state = State.WAITING
         resultCount = 0
         totalPlayers = 0
         resultText = ""
+        winnerIndexes = emptySet()
+        teamAssignments = emptyList()
+        teamAnimationProgress = 1f
         invalidate()
+    }
+
+    private fun startTeamAnimation(animationDurationMs: Long, onAnimationEnd: (() -> Unit)?) {
+        var wasCanceled = false
+        teamAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
+            duration = animationDurationMs
+            interpolator = AccelerateDecelerateInterpolator()
+            addUpdateListener { animator ->
+                teamAnimationProgress = animator.animatedValue as Float
+                invalidate()
+            }
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationCancel(animation: Animator) {
+                    wasCanceled = true
+                }
+
+                override fun onAnimationEnd(animation: Animator) {
+                    teamAnimator = null
+                    if (!wasCanceled) {
+                        teamAnimationProgress = 1f
+                        invalidate()
+                        onAnimationEnd?.invoke()
+                    }
+                }
+            })
+            start()
+        }
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -214,12 +281,12 @@ class ChallengeTouchView @JvmOverloads constructor(
             Color.parseColor("#F568B4"),
         )
         paint.style = Paint.Style.FILL
-        repeat(totalPlayers.coerceIn(resultCount, 5)) { index ->
-            paint.color = colors[index]
+        repeat(totalPlayers.coerceIn(resultCount, MAX_VISIBLE_PLAYERS)) { index ->
+            paint.color = colors[index % colors.size]
             val x = width * (0.18f + index * (0.64f / (totalPlayers.coerceAtLeast(2) - 1)))
             val y = height * (0.32f + (index % 2) * 0.22f)
             canvas.drawCircle(x, y, dp(20f), paint)
-            if (index < resultCount) {
+            if (index in winnerIndexes) {
                 drawCrown(canvas, x, y - dp(30f))
             }
         }
@@ -237,30 +304,62 @@ class ChallengeTouchView @JvmOverloads constructor(
             Color.parseColor("#00C425"),
             Color.parseColor("#F568B4"),
         )
-        val players = totalPlayers.coerceIn(resultCount, 6)
-        val points = (0 until players).map { index ->
-            val x = width * (0.18f + index * (0.64f / (players.coerceAtLeast(2) - 1)))
-            val y = height * (0.34f + (index % 2) * 0.25f)
-            x to y
+        val players = totalPlayers.coerceIn(resultCount, MAX_VISIBLE_PLAYERS)
+        val assignments = teamAssignments.take(players).ifEmpty {
+            List(players) { index -> index % resultCount }
         }
+        val points = buildPlayerPoints(players)
         paint.style = Paint.Style.STROKE
         paint.strokeWidth = dp(4f)
         repeat(resultCount) { team ->
             paint.color = colors[team % colors.size]
-            val teamPoints = points.filterIndexed { index, _ -> index % resultCount == team }
-            teamPoints.zipWithNext().forEach { (a, b) ->
-                canvas.drawLine(a.first, a.second, b.first, b.second, paint)
-            }
+            val teamPoints = points.filterIndexed { index, _ -> assignments[index] == team }
+            drawTeamConnections(canvas, teamPoints)
         }
         paint.style = Paint.Style.FILL
         points.forEachIndexed { index, point ->
-            paint.color = colors[index % resultCount]
+            paint.color = colors[assignments[index] % colors.size]
             canvas.drawCircle(point.first, point.second, dp(22f), paint)
         }
         paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
         paint.textSize = dp(16f)
         paint.color = Color.parseColor("#0F0705")
         canvas.drawText("$resultCount Teams", width / 2f, height * 0.72f, paint)
+    }
+
+    private fun buildPlayerPoints(players: Int): List<Pair<Float, Float>> {
+        if (players <= COMPACT_LAYOUT_PLAYERS) {
+            return (0 until players).map { index ->
+                val x = width * (0.18f + index * (0.64f / (players.coerceAtLeast(2) - 1)))
+                val y = height * (0.34f + (index % 2) * 0.25f)
+                x to y
+            }
+        }
+
+        val cx = width / 2f
+        val cy = height * 0.42f
+        val radiusX = width * 0.32f
+        val radiusY = min(width, height) * 0.24f
+        return (0 until players).map { index ->
+            val angle = Math.toRadians((-90f + index * (360f / players)).toDouble())
+            val x = cx + cos(angle).toFloat() * radiusX
+            val y = cy + sin(angle).toFloat() * radiusY
+            x to y
+        }
+    }
+
+    private fun drawTeamConnections(canvas: Canvas, points: List<Pair<Float, Float>>) {
+        if (points.size < 2) return
+
+        val segmentProgress = teamAnimationProgress * (points.size - 1)
+        points.zipWithNext().forEachIndexed { index, (start, end) ->
+            val progress = (segmentProgress - index).coerceIn(0f, 1f)
+            if (progress <= 0f) return@forEachIndexed
+
+            val endX = start.first + (end.first - start.first) * progress
+            val endY = start.second + (end.second - start.second) * progress
+            canvas.drawLine(start.first, start.second, endX, endY, paint)
+        }
     }
 
     private fun drawCrown(canvas: Canvas, cx: Float, cy: Float) {
@@ -284,4 +383,11 @@ class ChallengeTouchView @JvmOverloads constructor(
     }
 
     private fun dp(value: Float): Float = value * resources.displayMetrics.density
+
+    private companion object {
+        private const val MIN_TEAM_COUNT = 2
+        private const val MAX_TEAM_COUNT = 5
+        private const val MAX_VISIBLE_PLAYERS = 10
+        private const val COMPACT_LAYOUT_PLAYERS = 6
+    }
 }

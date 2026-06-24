@@ -91,6 +91,11 @@
             android:screenOrientation="portrait" />
 
         <activity
+            android:name=".ui.homograft.HomograftResultActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
             android:name=".ui.policy.PolicyActivity"
             android:exported="false"
             android:screenOrientation="portrait" />

@@ -10,12 +10,14 @@ import com.example.spinwheel.databinding.ActivitySpinWheelBinding
 import com.example.spinwheel.dialog.winner.WinnerResultDialog
 import com.example.spinwheel.model.WheelModel
 import com.example.spinwheel.model.WheelSlice
+import com.example.spinwheel.util.SoundPlayer
 
 class SpinWheelActivity : BaseActivity<ActivitySpinWheelBinding>(ActivitySpinWheelBinding::inflate) {
 
     private var soundOn = true
     private var isSpinning = false
     private var wheelId: Long = -1L
+    private val soundPlayer by lazy { SoundPlayer(this) }
     private lateinit var wheel: WheelModel
 
     override fun getData() {
@@ -39,6 +41,11 @@ class SpinWheelActivity : BaseActivity<ActivitySpinWheelBinding>(ActivitySpinWhe
             binding.viewTop.ivRight.setImageResource(
                 if (soundOn) R.drawable.ic_volume_up_black else R.drawable.ic_volume_off_black
             )
+            if (soundOn && isSpinning) {
+                soundPlayer.play(R.raw.spinning_wheel, loop = true)
+            } else if (!soundOn) {
+                soundPlayer.stop()
+            }
         }
     }
 
@@ -82,8 +89,15 @@ class SpinWheelActivity : BaseActivity<ActivitySpinWheelBinding>(ActivitySpinWhe
         }
 
         isSpinning = true
+        if (soundOn) {
+            soundPlayer.play(R.raw.spinning_wheel, loop = true)
+        }
         binding.spinWheel.spinToRandom { winner ->
             isSpinning = false
+            soundPlayer.stop()
+            if (soundOn) {
+                soundPlayer.play(R.raw.gamevictory)
+            }
             showResult(winner)
         }
     }
@@ -111,6 +125,11 @@ class SpinWheelActivity : BaseActivity<ActivitySpinWheelBinding>(ActivitySpinWhe
         startNextActivity(WheelEditorActivity::class.java, Bundle().apply {
             putLong(WheelEditorActivity.EXTRA_WHEEL_ID, wheel.id)
         })
+    }
+
+    override fun onDestroy() {
+        soundPlayer.release()
+        super.onDestroy()
     }
 
     companion object {
