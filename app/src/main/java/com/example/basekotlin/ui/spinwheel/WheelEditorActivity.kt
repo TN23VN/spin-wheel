@@ -34,6 +34,7 @@ class WheelEditorActivity :
     private var originalJson = ""
     private var hasChanges = false
     private var returnHomeOnBack = false
+    private var isPreviewMode = false
 
     override fun getData() {
         val id = intent.getLongExtra(EXTRA_WHEEL_ID, -1L)
@@ -62,6 +63,7 @@ class WheelEditorActivity :
         binding.viewTop.ivLeft.tap { handleBack() }
         binding.btnSave.tap { save() }
         binding.btnPreview.tap { previewWheel() }
+        binding.btnPreviewSave.tap { save() }
         binding.btnEditName.tap { binding.edtName.requestFocus() }
 
         binding.edtName.addTextChangedListener(simpleWatcher {
@@ -97,12 +99,10 @@ class WheelEditorActivity :
     }
 
     private fun previewWheel() {
-        if (!prepareWheel()) return
+        if (!canShowPreview()) return
 
-        persistWheel()
-        startNextActivity(SpinWheelActivity::class.java, Bundle().apply {
-            putLong(SpinWheelActivity.EXTRA_WHEEL_ID, wheel.id)
-        })
+        updatePreview()
+        showPreviewMode()
     }
 
     private fun prepareWheel(): Boolean {
@@ -128,17 +128,17 @@ class WheelEditorActivity :
     }
 
     private fun handleBack() {
+        if (isPreviewMode) {
+            showEditMode()
+            return
+        }
+
         if (!hasChanges) {
             leaveEditorWithoutSaving()
             return
         }
 
-        ConfirmDialog(
-            context = this,
-            title = getString(R.string.discard_changes),
-            confirmText = getString(R.string.discard),
-            onConfirm = { leaveEditorWithoutSaving() },
-        ).show()
+        confirmLeave()
     }
 
     override fun onBack() {
@@ -258,6 +258,36 @@ class WheelEditorActivity :
         binding.wheelPreview.setSlices(wheel.slices, wheel.fontSize)
     }
 
+    private fun canShowPreview(): Boolean {
+        if (binding.edtName.text.toString().trim().isBlank()) {
+            Toast.makeText(this, R.string.enter_name_of_wheel, Toast.LENGTH_SHORT).show()
+            return false
+        }
+        if (wheel.slices.size < MIN_OPTIONS) {
+            Toast.makeText(this, R.string.add_at_least_two_slices, Toast.LENGTH_SHORT).show()
+            return false
+        }
+        return true
+    }
+
+    private fun showPreviewMode() {
+        isPreviewMode = true
+        binding.viewTop.tvToolBar.text = getString(R.string.edit_wheel)
+        binding.editScroll.visibility = View.GONE
+        binding.previewContainer.visibility = View.VISIBLE
+    }
+
+    private fun showEditMode() {
+        isPreviewMode = false
+        binding.viewTop.tvToolBar.text = if (intent.hasExtra(EXTRA_WHEEL_ID)) {
+            getString(R.string.edit_wheel)
+        } else {
+            getString(R.string.new_wheel)
+        }
+        binding.previewContainer.visibility = View.GONE
+        binding.editScroll.visibility = View.VISIBLE
+    }
+
     private fun randomOptionColor(): Int {
         return WheelRepository.defaultColors.random()
     }
@@ -294,6 +324,19 @@ class WheelEditorActivity :
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = onChanged()
             override fun afterTextChanged(s: Editable?) = Unit
         }
+    }
+
+    private fun confirmLeave() {
+        ConfirmDialog(
+            img =R.drawable.ic_warring,
+            context = this,
+            title = getString(R.string.warning),
+            message = getString(R.string.if_you_leave_now),
+            confirmText = getString(R.string.exit),
+            onConfirm = {
+                leaveEditorWithoutSaving()
+            },
+        ).show()
     }
 
     companion object {

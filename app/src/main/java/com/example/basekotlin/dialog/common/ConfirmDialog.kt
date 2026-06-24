@@ -1,7 +1,9 @@
 package com.example.spinwheel.dialog.common
 
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.view.ViewGroup
+import androidx.annotation.DrawableRes
 import com.example.spinwheel.R
 import com.example.spinwheel.base.BaseDialog
 import com.example.spinwheel.base.gone
@@ -11,6 +13,7 @@ import com.example.spinwheel.databinding.DialogConfirmBinding
 
 class ConfirmDialog(
     context: Context,
+    private val img: Int,
     private val title: CharSequence,
     private val message: CharSequence? = null,
     private val confirmText: CharSequence = context.getString(R.string.ok),
@@ -23,6 +26,7 @@ class ConfirmDialog(
     }
 
     override fun initView() {
+        binding.ivRB.setImageResource(img)
         binding.tvTitle.text = title
         binding.btnCancel.text = cancelText
         binding.btnConfirm.text = confirmText

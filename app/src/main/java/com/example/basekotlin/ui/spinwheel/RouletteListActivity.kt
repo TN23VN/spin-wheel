@@ -32,7 +32,7 @@ class RouletteListActivity :
     }
 
     override fun bindView() {
-        binding.viewTop.ivLeft.tap { confirmLeave() }
+        binding.viewTop.ivLeft.tap { onBack() }
         binding.btnAdd.tap { addNewRoulette() }
         binding.rlAddNewRou.tap { addNewRoulette() }
     }
@@ -97,6 +97,7 @@ class RouletteListActivity :
 
     private fun confirmDelete(wheel: WheelModel) {
         ConfirmDialog(
+            img =R.drawable.ic_recycle_bin,
             context = this,
             title = getString(R.string.delete_wheel_title),
             message = getString(R.string.delete_wheel_message),
@@ -108,15 +109,4 @@ class RouletteListActivity :
         ).show()
     }
 
-    private fun confirmLeave() {
-        ConfirmDialog(
-            context = this,
-            title = getString(R.string.warning),
-            message = getString(R.string.if_you_leave_now),
-            confirmText = getString(R.string.exit),
-            onConfirm = {
-                onBack()
-            },
-        ).show()
-    }
 }
