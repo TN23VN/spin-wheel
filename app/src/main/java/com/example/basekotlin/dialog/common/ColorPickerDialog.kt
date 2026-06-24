@@ -19,6 +19,7 @@ class ColorPickerDialog(
     context: Context,
     private val selectedColor: Int,
     private val palette: List<Int> = defaultPalette,
+    private val title: CharSequence = context.getString(R.string.color),
     private val onConfirm: (Int) -> Unit,
 ) : BaseDialog<DialogColorPickerBinding>(context, true) {
 
@@ -100,7 +101,7 @@ class ColorPickerDialog(
     }
 
     private fun showPalette() {
-        binding.tvTitle.setText(R.string.color)
+        binding.tvTitle.text = title
         binding.tvMessage.visible()
         binding.colorRows.visible()
         binding.customControls.gone()

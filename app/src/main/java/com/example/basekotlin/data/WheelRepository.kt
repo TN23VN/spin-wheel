@@ -61,7 +61,8 @@ object WheelRepository {
     }
 
     fun getDefaultWheel(context: Context): WheelModel {
-        return getWheels(context).first()
+        return getWheels(context).firstOrNull()
+            ?: defaultWheel("Who will drink this shot ?").also { saveWheel(context, it) }
     }
 
     fun saveWheel(context: Context, wheel: WheelModel) {
@@ -77,9 +78,6 @@ object WheelRepository {
 
     fun deleteWheel(context: Context, id: Long) {
         val wheels = getWheels(context).filterNot { it.id == id }.toMutableList()
-        if (wheels.isEmpty()) {
-            wheels.add(defaultWheel("Who will drink this shot ?"))
-        }
         saveWheels(context, wheels)
     }
 
@@ -108,9 +106,7 @@ object WheelRepository {
             id = System.currentTimeMillis() + Random.nextLong(1, 999),
             name = "",
             themeIndex = themeIndex.coerceIn(themes.indices),
-            slices = MutableList(5) { index ->
-                WheelSlice("", colorFor(themeIndex, index))
-            },
+            slices = mutableListOf(),
         )
     }
 

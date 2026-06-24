@@ -16,6 +16,7 @@ class SpinWheelActivity : BaseActivity<ActivitySpinWheelBinding>(ActivitySpinWhe
 
     private var soundOn = true
     private var isSpinning = false
+    private var isResultPopupShowing = false
     private var wheelId: Long = -1L
     private val soundPlayer by lazy { SoundPlayer(this) }
     private lateinit var wheel: WheelModel
@@ -77,7 +78,7 @@ class SpinWheelActivity : BaseActivity<ActivitySpinWheelBinding>(ActivitySpinWhe
     }
 
     private fun spin() {
-        if (isSpinning) {
+        if (isSpinning || isResultPopupShowing) {
             Toast.makeText(this, R.string.please_wait_result, Toast.LENGTH_SHORT).show()
             return
         }
@@ -103,11 +104,16 @@ class SpinWheelActivity : BaseActivity<ActivitySpinWheelBinding>(ActivitySpinWhe
     }
 
     private fun showResult(winner: String) {
-        WinnerResultDialog(
+        isResultPopupShowing = true
+        val dialog = WinnerResultDialog(
             context = this,
             winner = winner,
             onRemove = { hideWinner(winner) },
-        ).show()
+        )
+        dialog.setOnDismissListener {
+            isResultPopupShowing = false
+        }
+        dialog.show()
     }
 
     private fun hideWinner(winner: String) {
@@ -124,10 +130,13 @@ class SpinWheelActivity : BaseActivity<ActivitySpinWheelBinding>(ActivitySpinWhe
     private fun openEditor() {
         startNextActivity(WheelEditorActivity::class.java, Bundle().apply {
             putLong(WheelEditorActivity.EXTRA_WHEEL_ID, wheel.id)
+            putBoolean(WheelEditorActivity.EXTRA_RETURN_HOME_ON_BACK, true)
         })
     }
 
     override fun onDestroy() {
+        isSpinning = false
+        isResultPopupShowing = false
         soundPlayer.release()
         super.onDestroy()
     }

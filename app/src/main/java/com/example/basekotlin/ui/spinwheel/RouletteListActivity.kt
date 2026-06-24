@@ -32,8 +32,9 @@ class RouletteListActivity :
     }
 
     override fun bindView() {
-        binding.viewTop.ivLeft.tap { onBack() }
-        binding.btnAdd.tap { showThemePicker() }
+        binding.viewTop.ivLeft.tap { confirmLeave() }
+        binding.btnAdd.tap { addNewRoulette() }
+        binding.rlAddNewRou.tap { addNewRoulette() }
     }
 
     override fun onResume() {
@@ -45,6 +46,7 @@ class RouletteListActivity :
         val wheels = WheelRepository.getWheels(this)
         adapter.submit(wheels)
         binding.emptyState.visibility = if (wheels.isEmpty()) View.VISIBLE else View.GONE
+        binding.btnAdd.visibility = if (wheels.isEmpty()) View.GONE else View.VISIBLE
     }
 
     private fun openSpin(id: Long) {
@@ -57,6 +59,10 @@ class RouletteListActivity :
         startNextActivity(WheelEditorActivity::class.java, Bundle().apply {
             putLong(WheelEditorActivity.EXTRA_WHEEL_ID, id)
         })
+    }
+
+    private fun addNewRoulette() {
+        startNextActivity(WheelEditorActivity::class.java, null)
     }
 
     private fun showThemePicker() {
@@ -98,6 +104,18 @@ class RouletteListActivity :
             onConfirm = {
                 WheelRepository.deleteWheel(this, wheel.id)
                 reload()
+            },
+        ).show()
+    }
+
+    private fun confirmLeave() {
+        ConfirmDialog(
+            context = this,
+            title = getString(R.string.warning),
+            message = getString(R.string.if_you_leave_now),
+            confirmText = getString(R.string.exit),
+            onConfirm = {
+                onBack()
             },
         ).show()
     }

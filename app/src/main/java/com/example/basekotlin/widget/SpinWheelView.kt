@@ -1,6 +1,7 @@
 package com.example.spinwheel.widget
 
 import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
@@ -134,27 +135,35 @@ class SpinWheelView @JvmOverloads constructor(
 
         animator?.cancel()
         val targetIndex = Random.nextInt(labels.size)
+        val winnerLabel = labels[targetIndex]
         val sweep = 360f / labels.size
-        val pointerAngle = -90f
-        val targetCenter = targetIndex * sweep + sweep / 2f
-        val normalized = ((pointerAngle - targetCenter - wheelRotation) % 360f + 360f) % 360f
-        val endRotation = wheelRotation + 1440f + normalized
+        val targetRotation = normalizeDegrees(-(targetIndex * sweep + sweep / 2f))
+        val clockwiseDelta = normalizeDegrees(targetRotation - normalizeDegrees(wheelRotation))
+        val fullSpins = MIN_SPIN_ROUNDS + Random.nextInt(EXTRA_SPIN_ROUNDS + 1)
+        val endRotation = wheelRotation + fullSpins * FULL_CIRCLE + clockwiseDelta
+        var wasCanceled = false
 
+        setLayerType(LAYER_TYPE_HARDWARE, null)
         animator = ValueAnimator.ofFloat(wheelRotation, endRotation).apply {
-            duration = 1800L
-            interpolator = DecelerateInterpolator()
+            duration = SPIN_DURATION_MS
+            interpolator = DecelerateInterpolator(SPIN_DECELERATION_FACTOR)
             addUpdateListener {
                 wheelRotation = it.animatedValue as Float
-                invalidate()
+                postInvalidateOnAnimation()
             }
-            addListener(object : Animator.AnimatorListener {
-                override fun onAnimationStart(animation: Animator) = Unit
-                override fun onAnimationCancel(animation: Animator) = Unit
-                override fun onAnimationRepeat(animation: Animator) = Unit
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationCancel(animation: Animator) {
+                    wasCanceled = true
+                }
 
                 override fun onAnimationEnd(animation: Animator) {
-                    wheelRotation %= 360f
-                    onFinished?.invoke(labels[targetIndex])
+                    animator = null
+                    setLayerType(LAYER_TYPE_NONE, null)
+                    wheelRotation = normalizeDegrees(wheelRotation)
+                    postInvalidateOnAnimation()
+                    if (!wasCanceled) {
+                        onFinished?.invoke(winnerLabel)
+                    }
                 }
             })
             start()
@@ -199,7 +208,7 @@ class SpinWheelView @JvmOverloads constructor(
             WHEEL_CY + INNER_RADIUS,
         )
         labels.forEachIndexed { index, label ->
-            val start = -90f + index * sweep
+            val start = SLICE_START_ANGLE + index * sweep
             slicePaint.color = colors[index % colors.size]
             canvas.drawArc(sliceRect, start, sweep, true, slicePaint)
 
@@ -319,7 +328,18 @@ class SpinWheelView @JvmOverloads constructor(
         pointerLowlightPath.close()
     }
 
+    private fun normalizeDegrees(value: Float): Float {
+        val normalized = value % FULL_CIRCLE
+        return if (normalized < 0f) normalized + FULL_CIRCLE else normalized
+    }
+
     companion object {
+        private const val FULL_CIRCLE = 360f
+        private const val SLICE_START_ANGLE = -90f
+        private const val MIN_SPIN_ROUNDS = 5
+        private const val EXTRA_SPIN_ROUNDS = 1
+        private const val SPIN_DURATION_MS = 2600L
+        private const val SPIN_DECELERATION_FACTOR = 1.35f
         private const val DESIGN_WIDTH = 381f
         private const val DESIGN_HEIGHT = 412f
         private const val WHEEL_CX = 190.18f

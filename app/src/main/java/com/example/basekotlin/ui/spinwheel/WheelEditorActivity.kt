@@ -1,12 +1,17 @@
 package com.example.spinwheel.ui.spinwheel
 
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.Gravity
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.example.spinwheel.R
@@ -20,6 +25,7 @@ import com.example.spinwheel.dialog.common.ColorPickerDialog
 import com.example.spinwheel.dialog.common.ConfirmDialog
 import com.example.spinwheel.model.WheelModel
 import com.example.spinwheel.model.WheelSlice
+import com.example.spinwheel.ui.main.MainActivity
 
 class WheelEditorActivity :
     BaseActivity<ActivityWheelEditorBinding>(ActivityWheelEditorBinding::inflate) {
@@ -27,15 +33,17 @@ class WheelEditorActivity :
     private lateinit var wheel: WheelModel
     private var originalJson = ""
     private var hasChanges = false
+    private var returnHomeOnBack = false
 
     override fun getData() {
         val id = intent.getLongExtra(EXTRA_WHEEL_ID, -1L)
+        returnHomeOnBack = intent.getBooleanExtra(EXTRA_RETURN_HOME_ON_BACK, false)
         wheel = if (id != -1L) {
             WheelRepository.getWheel(this, id) ?: WheelRepository.getDefaultWheel(this)
         } else {
             WheelRepository.newWheel(intent.getIntExtra(EXTRA_THEME_INDEX, 0))
         }
-        originalJson = wheel.toString()
+        originalJson = wheelSnapshot()
     }
 
     override fun initView() {
@@ -47,6 +55,7 @@ class WheelEditorActivity :
         binding.viewTop.ivRight.inVisible()
         binding.edtName.setText(wheel.name)
         renderSlices()
+        updatePreview()
     }
 
     override fun bindView() {
@@ -70,7 +79,7 @@ class WheelEditorActivity :
         wheel.slices.add(
             WheelSlice(
                 label = label.trim(),
-                color = WheelRepository.colorFor(wheel.themeIndex, wheel.slices.size),
+                color = randomOptionColor(),
             ),
         )
         markChanged()
@@ -114,13 +123,13 @@ class WheelEditorActivity :
 
     private fun persistWheel() {
         WheelRepository.saveWheel(this, wheel)
-        originalJson = wheel.toString()
+        originalJson = wheelSnapshot()
         markChanged()
     }
 
     private fun handleBack() {
         if (!hasChanges) {
-            onBack()
+            leaveEditorWithoutSaving()
             return
         }
 
@@ -128,18 +137,19 @@ class WheelEditorActivity :
             context = this,
             title = getString(R.string.discard_changes),
             confirmText = getString(R.string.discard),
-            onConfirm = { onBack() },
+            onConfirm = { leaveEditorWithoutSaving() },
         ).show()
     }
 
     override fun onBack() {
-        finishThisActivity()
+        handleBack()
     }
 
     private fun showColorPicker(index: Int) {
         ColorPickerDialog(
             context = this,
             selectedColor = wheel.slices[index].color,
+            title = getString(R.string.edit),
             onConfirm = { color ->
                 wheel.slices[index].color = color
                 markChanged()
@@ -152,9 +162,14 @@ class WheelEditorActivity :
         binding.slicesContainer.removeAllViews()
         binding.slicesContainer.addView(addSliceRow())
 
-        wheel.slices.forEachIndexed { index, slice ->
-            binding.slicesContainer.addView(sliceRow(index, slice))
+        if (wheel.slices.isEmpty()) {
+            binding.slicesContainer.addView(emptySlicesView())
+        } else {
+            wheel.slices.forEachIndexed { index, slice ->
+                binding.slicesContainer.addView(sliceRow(index, slice))
+            }
         }
+        updatePreview()
     }
 
     private fun addSliceRow(): View {
@@ -175,6 +190,7 @@ class WheelEditorActivity :
                 false
             }
         }
+        row.btnEdit.isEnabled = row.edtName.text.toString().isNotBlank()
         row.btnEdit.tap { addOption(row.edtName.text.toString()) }
         return row.root
     }
@@ -196,19 +212,67 @@ class WheelEditorActivity :
         row.edtName.addTextChangedListener(simpleWatcher {
             wheel.slices.getOrNull(index)?.label = row.edtName.text.toString()
             markChanged()
+            updatePreview()
         })
         return row.root
     }
 
     private fun deleteSlice(index: Int) {
-        if (wheel.slices.size <= MIN_OPTIONS) {
-            Toast.makeText(this, R.string.keep_at_least_two_slices, Toast.LENGTH_SHORT).show()
-            return
-        }
-
         wheel.slices.removeAt(index)
         markChanged()
         renderSlices()
+    }
+
+    private fun emptySlicesView(): View {
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            setPadding(0, dp(18), 0, dp(18))
+
+            addView(
+                ImageView(context).apply {
+                    setImageResource(R.drawable.spin_wheel)
+                    alpha = 0.72f
+                },
+                LinearLayout.LayoutParams(dp(76), dp(76)),
+            )
+
+            addView(
+                TextView(context).apply {
+                    text = getString(R.string.add_at_least_two_slices)
+                    gravity = Gravity.CENTER
+                    setTextColor(ContextCompat.getColor(context, R.color.color_text_second))
+                    textSize = 14f
+                },
+                LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                ).apply {
+                    topMargin = dp(10)
+                },
+            )
+        }
+    }
+
+    private fun updatePreview() {
+        binding.wheelPreview.setSlices(wheel.slices, wheel.fontSize)
+    }
+
+    private fun randomOptionColor(): Int {
+        return WheelRepository.defaultColors.random()
+    }
+
+    private fun leaveEditorWithoutSaving() {
+        if (returnHomeOnBack) {
+            startActivity(
+                Intent(this, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                },
+            )
+            finish()
+        } else {
+            finishThisActivity()
+        }
     }
 
     private fun tintButton(button: ImageButton, backgroundColor: Int, iconColor: Int) {
@@ -217,8 +281,12 @@ class WheelEditorActivity :
     }
 
     private fun markChanged() {
-        hasChanges = wheel.toString() != originalJson
+        hasChanges = wheelSnapshot() != originalJson
     }
+
+    private fun wheelSnapshot(): String = wheel.toString()
+
+    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 
     private fun simpleWatcher(onChanged: () -> Unit): TextWatcher {
         return object : TextWatcher {
@@ -231,6 +299,7 @@ class WheelEditorActivity :
     companion object {
         const val EXTRA_WHEEL_ID = "extra_wheel_id"
         const val EXTRA_THEME_INDEX = "extra_theme_index"
+        const val EXTRA_RETURN_HOME_ON_BACK = "extra_return_home_on_back"
 
         private const val MIN_OPTIONS = 2
         private const val MAX_OPTIONS = 24
